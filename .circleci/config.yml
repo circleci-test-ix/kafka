@@ -10,3 +10,46 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+version: 2 # use CircleCI 2.0
+jobs: # a collection of steps
+  build: # runs not using Workflows must have a `build` job as entry point
+    
+    working_directory: ~/kafka # directory where steps will run
+
+    docker: # run the steps with Docker
+      - image: circleci/openjdk:8-jdk # ...with this image as the primary container; this is where all `steps` will run
+      
+    environment:
+      - _DUCKTAPE_OPTIONS="--subset 0  --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 1  --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 2  --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 3  --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 4  --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 5  --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 6  --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 7  --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 8  --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 9  --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 10 --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 11 --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 12 --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 13 --subsets 15"
+      - _DUCKTAPE_OPTIONS="--subset 14 --subsets 15"
+      
+    steps: # a collection of executable commands
+
+      - checkout # check out source code to working directory
+      
+      - run: rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  
+      - run: rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+      
+      - run: mvn dependency:go-offline # gets the project dependencies
+      
+      - run: gradle wrapper
+      
+      - run: ./gradlew rat
+      
+      - run: ./gradlew systemTestLibs && /bin/bash ./tests/docker/run_tests.s
+      
+      
