@@ -4,8 +4,7 @@ workflows:
   build:
     jobs:
       - jdk_8
-      - jdk_10
-      - jdk_12
+      - jdk_11
 
 commands: 
   build_steps:
@@ -77,14 +76,8 @@ jobs:
     steps:
       - build_steps
       
-  jdk_10:
+  jdk_11:
     docker:   
-      - image: circleci/openjdk:10-jdk
-    steps:
-      - build_steps
-      
-  jdk_12:
-    docker:   
-      - image: circleci/openjdk:12-jdk
+      - image: circleci/openjdk:11-jdk
     steps:
       - build_steps
