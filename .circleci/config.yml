@@ -14,8 +14,10 @@ commands:
         - setup_remote_docker
         - run:
             name: Build Steps
-            command: |
+            command: |            
               echo "$JAVA_HOME"
+              java -version
+              
               gradle wrapper
 
               # Run validation checks (compilation and static analysis)
