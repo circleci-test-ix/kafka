@@ -29,6 +29,14 @@ commands:
               gradle -version
               
               gradle
+              
+              export GRADLE_OPTS=-Xmx1024m
+              GRADLE_OPTS=-Xmx1024m
+              ./gradlew --no-daemon --continue -PmaxParallelForks=1 -PtestLoggingEvents=started,passed,skipped,failed -PxmlFindBugsReport=true -PscalaVersion=2.12 clean test
+              
+        - run:
+            name: Steps 2
+            command: |
 
               # Run validation checks (compilation and static analysis)
               # rat
