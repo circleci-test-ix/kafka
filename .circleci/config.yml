@@ -15,6 +15,7 @@ commands:
         - run:
             name: Build Steps
             command: |
+              echo "$JAVA_HOME"
               gradle wrapper
 
               # Run validation checks (compilation and static analysis)
