@@ -77,7 +77,7 @@ jobs:
     steps:
       - build_steps
       
-  jdk_8:
+  jdk_10:
     docker:   
       - circleci/openjdk:10-jdk
     steps:
