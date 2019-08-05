@@ -38,7 +38,7 @@ commands:
             command: |            
               export GRADLE_OPTS=-Xmx1024m
               GRADLE_OPTS=-Xmx1024m
-              ./gradlew --no-daemon --continue -PmaxParallelForks=1 -PtestLoggingEvents=started,passed,skipped,failed -PxmlFindBugsReport=true -PscalaVersion=$SCALA_VERSION clean test
+              ./gradlew --no-daemon --continue --gradle-version 4.10.3 -PmaxParallelForks=1 -PtestLoggingEvents=started,passed,skipped,failed -PxmlFindBugsReport=true -PscalaVersion=$SCALA_VERSION clean test
                   
 jobs:
   jdk_8_scala_2_12:
