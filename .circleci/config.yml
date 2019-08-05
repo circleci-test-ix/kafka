@@ -3,7 +3,7 @@ workflows:
   version: 2
   build:
     jobs:
-      - jdk_8
+#       - jdk_8
       - jdk_11
 
 commands: 
@@ -11,7 +11,7 @@ commands:
     description: "Build Steps"
     steps:
         - checkout
-#         - setup_remote_docker
+        - setup_remote_docker
         - run:
             name: Upgrade Gradle
             command: |
@@ -19,15 +19,16 @@ commands:
               #sudo apt-get update
               #sudo apt upgrade gradle
               #export TERM=xterm && gradle wrapper
-              echo "upgrade gradle"
-              ./gradlew wrapper --gradle-version=5.5.1 --distribution-type=bin --no-daemon
+              #echo "upgrade gradle"
+              #./gradlew wrapper --gradle-version=5.5.1 --distribution-type=bin --no-daemon
         - run:
             name: Build Steps
             command: |            
               echo "$JAVA_HOME"
               java -version
+              gradle -version
               
-              #gradle wrapper
+              gradle
 
               # Run validation checks (compilation and static analysis)
               ./gradlew clean compileJava compileScala compileTestJava compileTestScala \
