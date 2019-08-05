@@ -49,6 +49,8 @@ jobs: # a collection of steps
       - run:
           name: Build Steps
           command: |
+            gradle wrapper
+            
             # Run validation checks (compilation and static analysis)
             ./gradlew clean compileJava compileScala compileTestJava compileTestScala \
                 spotlessScalaCheck checkstyleMain checkstyleTest spotbugsMain rat \
