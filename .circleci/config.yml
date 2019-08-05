@@ -13,21 +13,23 @@ commands:
         - checkout
 #         - setup_remote_docker
         - run:
+            name: Upgrade Gradle
+            command: |
+              sudo add-apt-repository ppa:cwchien/gradle
+              sudo apt-get update
+              sudo apt upgrade gradle
+        - run:
             name: Build Steps
             command: |            
               echo "$JAVA_HOME"
               java -version
-              
-              sudo add-apt-repository ppa:cwchien/gradle
-              sudo apt-get update
-              sudo apt upgrade gradle
               
               gradle wrapper
 
               # Run validation checks (compilation and static analysis)
               ./gradlew clean compileJava compileScala compileTestJava compileTestScala \
                   spotlessScalaCheck checkstyleMain checkstyleTest spotbugsMain rat \
-                  --profile --no-daemon --continue --debug -PxmlSpotBugsReport=true "$@" \
+                  --profile --no-daemon --continue -PxmlSpotBugsReport=true "$@" \
                   || { echo 'Validation steps failed'; exit 1; }
 
               # Run tests
