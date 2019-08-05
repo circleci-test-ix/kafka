@@ -11,7 +11,7 @@ commands:
     description: "Build Steps"
     steps:
         - checkout
-        - setup_remote_docker
+#         - setup_remote_docker
         - run:
             name: Build Steps
             command: |            
