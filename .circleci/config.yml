@@ -25,40 +25,96 @@ jobs: # a collection of steps
 #     machine:
 #       image: ubuntu-1604:201903-01
     
-    environment:
-      - _DUCKTAPE_OPTIONS="--subset 0  --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 1  --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 2  --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 3  --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 4  --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 5  --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 6  --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 7  --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 8  --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 9  --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 10 --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 11 --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 12 --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 13 --subsets 15"
-      - _DUCKTAPE_OPTIONS="--subset 14 --subsets 15"
+#     environment:
+#       - _DUCKTAPE_OPTIONS="--subset 0  --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 1  --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 2  --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 3  --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 4  --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 5  --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 6  --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 7  --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 8  --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 9  --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 10 --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 11 --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 12 --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 13 --subsets 15"
+#       - _DUCKTAPE_OPTIONS="--subset 14 --subsets 15"
+
+    steps:
+      run:
+        name: Build Steps
+        command: |
+          # Run validation checks (compilation and static analysis)
+          ./gradlew clean compileJava compileScala compileTestJava compileTestScala \
+              spotlessScalaCheck checkstyleMain checkstyleTest spotbugsMain rat \
+              --profile --no-daemon --continue -PxmlSpotBugsReport=true "$@" \
+              || { echo 'Validation steps failed'; exit 1; }
+
+          # Run tests
+          ./gradlew unitTest integrationTest \
+              --profile --no-daemon --continue -PtestLoggingEvents=started,passed,skipped,failed "$@" \
+              || { echo 'Test steps failed'; exit 1; }
+
+          # Verify that Kafka Streams archetype compiles
+          if [ $JAVA_HOME = "/home/jenkins/tools/java/latest11" ] ; then
+            echo "Skipping Kafka Streams archetype test for Java 11"
+            exit 0
+          fi
+
+          ./gradlew streams:install clients:install connect:json:install connect:api:install \
+              || { echo 'Could not install kafka-streams.jar (and dependencies) locally`'; exit 1; }
+
+          version=`grep "^version=" gradle.properties | cut -d= -f 2` \
+              || { echo 'Could not get version from `gradle.properties`'; exit 1; }
+
+          cd streams/quickstart \
+              || { echo 'Could not change into directory `streams/quickstart`'; exit 1; }
+
+          # variable $MAVEN_LATEST__HOME is provided by Jenkins (see build configuration)
+          mvn=$MAVEN_LATEST__HOME/bin/mvn
+
+          $mvn clean install -Dgpg.skip  \
+              || { echo 'Could not `mvn install` streams quickstart archetype'; exit 1; }
+
+          mkdir test-streams-archetype && cd test-streams-archetype \
+              || { echo 'Could not create test directory for stream quickstart archetype'; exit 1; }
+
+          echo "Y" | $mvn archetype:generate \
+              -DarchetypeCatalog=local \
+              -DarchetypeGroupId=org.apache.kafka \
+              -DarchetypeArtifactId=streams-quickstart-java \
+              -DarchetypeVersion=$version \
+              -DgroupId=streams.examples \
+              -DartifactId=streams.examples \
+              -Dversion=0.1 \
+              -Dpackage=myapps \
+              || { echo 'Could not create new project using streams quickstart archetype'; exit 1; }
+
+          cd streams.examples \
+              || { echo 'Could not change into directory `streams.examples`'; exit 1; }
+
+          $mvn compile \
+              || { echo 'Could not compile streams quickstart archetype project'; exit 1; }
       
-    steps: # a collection of executable commands
-      - setup_remote_docker
+#     steps: # a collection of executable commands
+#       - setup_remote_docker
       
-      - checkout # check out source code to working directory
+#       - checkout # check out source code to working directory
       
-      - run: pip install --upgrade pip
+#       - run: pip install --upgrade pip
       
-      - run: rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+#       - run: rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   
-      - run: rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+#       - run: rm -fr $HOME/.gradle/caches/*/plugin-resolution/
       
-      #- run: export TERM=${TERM:-dumb} && gradle wrapper --gradle-version 5.5.1 
+#       #- run: export TERM=${TERM:-dumb} && gradle wrapper --gradle-version 5.5.1 
       
-      - run: gradle wrapper
+#       - run: gradle wrapper
       
-      - run: ./gradlew rat
+#       - run: ./gradlew rat
       
-      - run: ./gradlew systemTestLibs && /bin/bash ./tests/docker/run_tests.sh
+#       - run: ./gradlew systemTestLibs && /bin/bash ./tests/docker/run_tests.sh
       
       
