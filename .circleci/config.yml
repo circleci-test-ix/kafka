@@ -15,16 +15,18 @@ commands:
         - run:
             name: Upgrade Gradle
             command: |
-              sudo add-apt-repository ppa:cwchien/gradle
-              sudo apt-get update
-              sudo apt upgrade gradle
+              #sudo add-apt-repository ppa:cwchien/gradle
+              #sudo apt-get update
+              #sudo apt upgrade gradle
+              gradle wrapper
+              ./gradlew wrapper --gradle-version=5.5.1 --distribution-type=bin
         - run:
             name: Build Steps
             command: |            
               echo "$JAVA_HOME"
               java -version
               
-              gradle wrapper
+              #gradle wrapper
 
               # Run validation checks (compilation and static analysis)
               ./gradlew clean compileJava compileScala compileTestJava compileTestScala \
