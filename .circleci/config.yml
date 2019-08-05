@@ -18,6 +18,10 @@ commands:
               echo "$JAVA_HOME"
               java -version
               
+              sudo add-apt-repository ppa:cwchien/gradle
+              sudo apt-get update
+              sudo apt upgrade gradle
+              
               gradle wrapper
 
               # Run validation checks (compilation and static analysis)
@@ -74,8 +78,10 @@ commands:
                   
 jobs:
   jdk_8:
-    docker:   
-      - image: circleci/openjdk:8-jdk
+    machine:
+      image: ubuntu-1604:201903-01
+#     docker:   
+#       - image: circleci/openjdk:8-jdk
     steps:
       - build_steps
       
