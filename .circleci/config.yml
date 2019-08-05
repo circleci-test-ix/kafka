@@ -119,5 +119,6 @@ jobs:
   jdk_11:
     docker:   
       - image: circleci/openjdk:11-jdk
+    resource_class: large
     steps:
       - build_steps
