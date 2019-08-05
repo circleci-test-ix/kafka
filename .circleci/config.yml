@@ -73,18 +73,18 @@ commands:
 jobs:
   jdk_8:
     docker:   
-      - circleci/openjdk:8-jdk
+      - image: circleci/openjdk:8-jdk
     steps:
       - build_steps
       
   jdk_10:
     docker:   
-      - circleci/openjdk:10-jdk
+      - image: circleci/openjdk:10-jdk
     steps:
       - build_steps
       
   jdk_12:
     docker:   
-      - circleci/openjdk:12-jdk
+      - image: circleci/openjdk:12-jdk
     steps:
       - build_steps
